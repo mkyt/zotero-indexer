@@ -56,7 +56,7 @@ def extract_text(doc):
         elif lang == "ja":
             t = remove_newline(t)
 
-        res.append({"page": i + 1, "text": t})
+        res.append({"page": i + 1, "text": t, "guessed_lang": lang})
     return res
 
 
