@@ -6,7 +6,7 @@ import fitz
 from dehyphen import FlairScorer, text_to_format
 import langdetect
 
-scorer = FlairScorer(lang="en")
+scorer = FlairScorer(lang="en", fast=True)
 
 
 def to_plain(lst):
