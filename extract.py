@@ -3,10 +3,51 @@ import json
 import re
 
 import fitz
-from dehyphen import FlairScorer, text_to_format
+from dehyphen import FlairScorer
 import langdetect
 
 scorer = FlairScorer(lang="en", fast=True)
+
+
+####
+# adopted and modified from dehyphen/format.py
+
+
+def split_list(input_list, sep):
+    res = []
+    for x in input_list:
+        if x == sep:
+            yield res
+            res = []
+        else:
+            res.append(x)
+    yield res
+
+
+def paragraph_to_format(paragraph):
+    lines = [l.split() for l in paragraph]
+
+    res = []
+    for l in lines[:-1]:
+        if len(l) > 0:
+            l[-1] += " "
+            res.append(l)
+    if len(lines) > 0 and len(lines[-1]) > 0:
+        res.append(lines[-1])
+
+    return res
+
+
+def text_to_format(text):
+    # special case if there is no newline in the text
+    if not "\n" in text:
+        return paragraph_to_format([text])
+    lines = text.splitlines()
+    paragraphs = split_list(lines, "")
+    return list(map(paragraph_to_format, paragraphs))
+
+
+####
 
 
 def to_plain(lst):
@@ -19,11 +60,13 @@ def to_plain(lst):
 
 
 def dehyphen(t):
-    t = re.sub(
-        r"\n\s+\n", "\n\n", t, flags=re.MULTILINE
-    )  # remove empty lines with spaces
     fmt = text_to_format(t)
-    fixed_hyphens = scorer.dehyphen(fmt)
+    fmt = [f for f in fmt if len(f) > 0 and len(f[0]) > 0]
+    try:
+        fixed_hyphens = scorer.dehyphen(fmt)
+    except Exception as e:
+        print(fmt)
+        raise e
     return to_plain(fixed_hyphens)
 
 
@@ -45,6 +88,9 @@ def extract_text(doc):
     res = []
     for i, page in enumerate(doc):
         t = page.get_text()
+        t = t.replace(
+            chr(0xFFFD), ""
+        )  # remove replacement character (MuPDF invalid name entries is represented as 0xfffd)
         t = unicodedata.normalize("NFKC", t)
         try:
             lang = langdetect.detect(t)
