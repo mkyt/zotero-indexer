@@ -3,3 +3,5 @@ meilisearch
 langdetect
 dehyphen
 Pillow
+fastapi
+uvicorn[standard]

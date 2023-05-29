@@ -33,3 +33,44 @@ Item Schema:
         'file':
     }
 }
+
+
+
+## How to use
+
+### Create / Update Index
+
+```bash
+source .venv/bin/activate
+
+# create json dump for fulltext and metadata
+python ./main.py
+
+# index to meilisearch
+meilisearch --master-key LaZbmSrq-RBIV3GfQJM8KgryLva2gMo4Wzf4gRQxcis
+python ./index.py
+
+```
+
+## Search frontend
+```bash
+meilisearch --master-key LaZbmSrq-RBIV3GfQJM8KgryLva2gMo4Wzf4gRQxcis
+uvicorn server:app --reload
+```
+
+### Develop Frontend
+
+```bash
+
+# start meilisearch and backend python server
+meilisearch --master-key LaZbmSrq-RBIV3GfQJM8KgryLva2gMo4Wzf4gRQxcis
+uvicorn server:app --reload
+
+cd zotero-indexer-frontend
+npm install
+npm run dev
+
+npm build
+
+```
+
