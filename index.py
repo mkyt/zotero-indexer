@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import meilisearch
 from pathlib import Path
 import json
