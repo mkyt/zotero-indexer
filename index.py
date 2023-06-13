@@ -5,10 +5,11 @@ import json
 import base64
 
 
+API_KEY = open("API_KEY").read().strip()
+
+
 def get_client():
-    return meilisearch.Client(
-        "http://localhost:7700", "LaZbmSrq-RBIV3GfQJM8KgryLva2gMo4Wzf4gRQxcis"
-    )
+    return meilisearch.Client("http://localhost:7700", API_KEY)
 
 
 def setup_index():
@@ -143,7 +144,7 @@ def main():
     if len(to_add_or_replace) > 0:
         print("adding or replacing {} document(s)...".format(len(to_add_or_replace)))
         task = c.index("docs").add_documents(to_add_or_replace, primary_key="id")
-        result = c.wait_for_task(task.task_uid)
+        result = c.wait_for_task(task.task_uid, 10000)
         print(result)
         if result["status"] != "succeeded":
             ok = False
