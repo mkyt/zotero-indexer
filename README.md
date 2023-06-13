@@ -22,6 +22,7 @@ Index `uid`: "documents"
 
 Item Schema:
 
+```json
 {
     'doc_id': string, // base64-encoded document id
     'id': string, // index item id sha1sum(`doc_id`+'_metadata' or `doc_id`+'_'+file_path+'pagenumber'`)
@@ -33,7 +34,7 @@ Item Schema:
         'file':
     }
 }
-
+```
 
 
 ## How to use
