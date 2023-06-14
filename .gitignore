@@ -5,3 +5,6 @@ output/
 __pycache__/
 *.py[cod]
 *$py.class
+node_modules
+data.ms
+API_KEY
