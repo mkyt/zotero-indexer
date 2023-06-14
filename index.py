@@ -6,15 +6,33 @@ import base64
 
 
 API_KEY = open("API_KEY").read().strip()
+INDEX_NAME = "docs"
 
 
 def get_client():
     return meilisearch.Client("http://localhost:7700", API_KEY)
 
 
+def create_index():
+    c = get_client()
+    task = c.create_index(INDEX_NAME)
+    result = c.wait_for_task(task.task_uid)
+    print(result)
+
+
 def setup_index():
     c = get_client()
-    c.create_index("docs")
+    index = c.get_index(INDEX_NAME)
+    task = index.update_settings(
+        {
+            "filterableAttributes": ["item_id", "record_type", "tags"],
+            "typoTolerance": {
+                "enabled": False,
+            },
+        }
+    )
+    result = c.wait_for_task(task.task_uid, 300000)  # 5 min.
+    print(result)
 
 
 def construct_records(output_base: Path):
@@ -61,6 +79,7 @@ def construct_records(output_base: Path):
                 records[did] = {
                     "id": did,
                     "item_id": item_id,
+                    "record_type": "fulltext",
                     "fingerprint": fp,
                     "total_pages": text["total_pages"],
                     "fulltext": {
@@ -74,6 +93,7 @@ def construct_records(output_base: Path):
         records[item_id] = {
             "id": item_id,
             "item_id": item_id,
+            "record_type": "metadata",
             "tags": list(doc["tags"]),
             "metadata": doc["metadata"],
             "attachment_fingerprints": attachment_fingerprints,
@@ -143,17 +163,17 @@ def main():
     ok = True
     if len(to_add_or_replace) > 0:
         print("adding or replacing {} document(s)...".format(len(to_add_or_replace)))
-        task = c.index("docs").add_documents(to_add_or_replace, primary_key="id")
-        result = c.wait_for_task(task.task_uid, 300000) # timeout = 5 min.
+        task = c.index(INDEX_NAME).add_documents(to_add_or_replace, primary_key="id")
+        result = c.wait_for_task(task.task_uid, 300000)  # timeout = 5 min.
         print(result)
-        if result["status"] != "succeeded":
+        if result.status != "succeeded":
             ok = False
     if len(to_remove) > 0:
         print("removing {} document(s)...".format(len(to_remove)))
-        task = c.index("docs").delete_documents(to_remove)
+        task = c.index(INDEX_NAME).delete_documents(to_remove)
         result = c.wait_for_task(task.task_uid)
         print(result)
-        if result["status"] != "succeeded":
+        if result.status != "succeeded":
             ok = False
 
     if ok:
@@ -172,5 +192,11 @@ def check_tasks():
     print(tasks)
 
 
+def initialize():
+    create_index()
+    setup_index()
+
+
 if __name__ == "__main__":
+    initialize()
     main()
