@@ -13,4 +13,3 @@ export const queryStringAtom = atom(
     set(queryAtom, { ...query, q: newQueryString });
   }
 )
-
