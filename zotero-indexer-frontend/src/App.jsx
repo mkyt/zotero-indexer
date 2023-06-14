@@ -1,12 +1,16 @@
-import { useState } from 'react';
 import { MantineProvider, ColorSchemeProvider, AppShell } from '@mantine/core';
+import { useLocalStorage } from '@mantine/hooks';
 
 import AppHeader from './components/header';
 import ResultList from './components/result-list';
 
 
 function App() {
-  const [colorScheme, setColorScheme] = useState('light');
+  const [colorScheme, setColorScheme] = useLocalStorage({
+    key: 'mantine-color-scheme',
+    defaultValue: 'light',
+    getInitialValueInEffect: true,
+  });
   const toggleColorScheme = (value) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
   return (
