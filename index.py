@@ -144,7 +144,7 @@ def main():
     if len(to_add_or_replace) > 0:
         print("adding or replacing {} document(s)...".format(len(to_add_or_replace)))
         task = c.index("docs").add_documents(to_add_or_replace, primary_key="id")
-        result = c.wait_for_task(task.task_uid, 10000)
+        result = c.wait_for_task(task.task_uid, 300000) # timeout = 5 min.
         print(result)
         if result["status"] != "succeeded":
             ok = False
