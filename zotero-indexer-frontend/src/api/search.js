@@ -18,5 +18,6 @@ export default function useSearchQuery(query) {
     },
     networkMode: 'always',
     refetchOnWindowFocus: false,
+    keepPreviousData: true,
   });
 }

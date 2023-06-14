@@ -1,0 +1,7 @@
+div.highlighter.dark span.highlight {
+  background-color: #705000;
+}
+
+div.highlighter.light span.highlight {
+  background-color: #ffdd00;
+}

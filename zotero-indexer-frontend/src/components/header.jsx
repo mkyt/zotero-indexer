@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMantineColorScheme, useMantineTheme, createStyles, Header, TextInput, rem, ActionIcon } from '@mantine/core';
-import { IconSearch, IconArrowRight, IconSun, IconMoonStars } from '@tabler/icons-react';
+import { IconSearch, IconArrowRight, IconSun, IconMoonStars, IconSquareRoundedLetterZ } from '@tabler/icons-react';
 import { useAtom } from 'jotai';
 
 import { queryStringAtom } from '../atoms/query';
@@ -33,7 +33,12 @@ export default function AppHeader() {
   return (
     <Header height={60} className={classes.header}>
       <div className={classes.inner}>
-        <div>Zotero Search</div>
+        <ActionIcon
+          color={theme.primaryColor}
+          size={40}
+        >
+          <IconSquareRoundedLetterZ size={40} />
+        </ActionIcon>
         <TextInput
           className={classes.search}
           value={search}
