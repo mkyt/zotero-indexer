@@ -1,18 +1,41 @@
 import { useAtom } from 'jotai';
-import { useMantineTheme, createStyles, Card, Text, Image } from '@mantine/core';
+import { useMantineTheme, createStyles, Card, Text, Image, Group } from '@mantine/core';
 import { queryAtom } from '../atoms/query';
 import useSearchQuery from '../api/search';
 import getCoverImageURL from '../api/cover';
 
 import './result-list.css';
 
-const Highlighter = ({ children, colorScheme }) => {
+const Highlighter = ({ children }) => {
   const theme = useMantineTheme();
 
   return (
     <span className={`highlighter ${theme.colorScheme}`} dangerouslySetInnerHTML={{ __html: children }} />
   );
 };
+
+const Attribute = (props) => {
+  var { document, accessor, highlight } = props;
+  if (highlight === undefined) {
+    highlight = true;
+  }
+  const md = document.metadata;
+  var p = null;
+  if (typeof accessor === 'string') {
+    p = md[accessor];
+  } else if (typeof accessor === 'function') {
+    p = accessor(md);
+  }
+  if (!p) {
+    return null;
+  } else {
+    if (highlight) {
+      return (<Highlighter>{p}</Highlighter>);
+    } else {
+      return (<span>{p}</span>);
+    }
+  }
+}
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -41,7 +64,7 @@ function author2string(author) {
 }
 
 function Authors(props) {
-  const authors = props.authors;
+  const authors = props.document.metadata['author'];
   const max_authors = props.maxAuthors || 8;
   if (!authors || authors.length === 0) {
     return null;
@@ -69,7 +92,7 @@ function Authors(props) {
 function VolumeIssuePages(props) {
   const doc = props.document.metadata;
   var res = ''
-  if (doc.issued['date-parts']) {
+  if (doc.issued !== undefined && doc.issued['date-parts']) {
     const date_parts = doc.issued['date-parts'][0];
     if (date_parts && date_parts.length > 0) {
       res += date_parts[0];
@@ -77,7 +100,7 @@ function VolumeIssuePages(props) {
   }
   if (doc.volume) {
     if (res.length > 0) {
-      res += '; ';
+      res += ';';
     }
     res += doc.volume;
   }
@@ -91,7 +114,7 @@ function VolumeIssuePages(props) {
     res += doc.page;
   }
   return (
-    <span>{res}</span>
+    <Highlighter>{res}</Highlighter>
   );
 }
 
@@ -102,10 +125,12 @@ function Article(props) {
     <Card withBorder radius="md" className={classes.card}>
       <div className={classes.inner}>
         <div className={classes.info}>
-          <Text fz="lg" fw={700}><Highlighter>{doc.metadata['title']}</Highlighter></Text>
-          <Text color="dimmed"><Authors authors={doc.metadata['author']} /></Text>
-          <Text><span class="journal-title"><Highlighter>{doc.metadata['container-title']}</Highlighter></span> <VolumeIssuePages document={doc} /> {doc.metadata['DOI'] ? ' doi:' + doc.metadata['DOI'] : ''}</Text>
-          <Text></Text>
+          <Text fz="lg" fw={700}><Attribute document={doc} accessor="title" /></Text>
+          <Text c="dimmed"><Authors document={doc} /></Text>
+          <Text><span className="journal-title"><Attribute document={doc} accessor="container-title" /></span> <VolumeIssuePages document={doc} /> {doc.metadata['DOI'] ? ' doi:' + doc.metadata['DOI'] : ''}</Text>
+          <Group mt="sm">
+            <Text size="sm" ><Attribute document={doc} accessor="abstract" /></Text>
+          </Group>
         </div>
         <div>
           <Image
@@ -133,10 +158,30 @@ function Book(props) {
   const { classes } = useStyles();
   return (
     <Card withBorder radius="md" className={classes.card}>
-      <Highlighter>{doc.metadata['title']}</Highlighter>
-      <Highlighter>{doc.metadata['publisher']}</Highlighter>
-      <Authors authors={doc.metadata['author']} />
-      <Highlighter>{doc.metadata['ISBN']}</Highlighter>
+      <div className={classes.inner}>
+        <div className={classes.info}>
+          <Text fz="lg" fw={700}><Attribute document={doc} accessor="title" /></Text>
+          <Text c="dimmed"><Authors document={doc} /></Text>
+          <Text><span class="journal-title"><Attribute document={doc} accessor="publisher" /></span> <VolumeIssuePages document={doc} /> {doc.metadata['ISBN'] ? ' ISBN:' + doc.metadata['ISBN'] : ''}</Text>
+          <Text></Text>
+        </div>
+        <div>
+          <Image
+            styles={(theme) => ({
+              root: {
+                marginLeft: theme.spacing.md,
+              },
+              image: {
+                border: '1px solid',
+                borderColor: theme.colors.dark[0],
+              }
+            })}
+            radius={3}
+            src={getCoverImageURL(doc)}
+            width={150}
+            withPlaceholder />
+        </div>
+      </div>
     </Card>
   );
 }
@@ -158,8 +203,6 @@ function Document(props) {
       <Card withBorder radius="md" className={classes.card}>
         <Highlighter>{doc.metadata['title']}</Highlighter>
         <Highlighter>{doc.metadata['container-title']}</Highlighter>
-        <Authors authors={doc.metadata['author']} />
-        <Highlighter>{doc.metadata['DOI']}</Highlighter>
       </Card>
     );
   }
