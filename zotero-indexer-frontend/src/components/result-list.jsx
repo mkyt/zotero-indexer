@@ -10,7 +10,7 @@ const Highlighter = ({ children, colorScheme }) => {
   const theme = useMantineTheme();
 
   return (
-    <div className={`highlighter ${theme.colorScheme}`} dangerouslySetInnerHTML={{ __html: children }} />
+    <span className={`highlighter ${theme.colorScheme}`} dangerouslySetInnerHTML={{ __html: children }} />
   );
 };
 
@@ -66,10 +66,6 @@ function Authors(props) {
   )
 }
 
-function Date(props) {
-
-}
-
 function VolumeIssuePages(props) {
   const doc = props.document.metadata;
   var res = ''
@@ -106,11 +102,10 @@ function Article(props) {
     <Card withBorder radius="md" className={classes.card}>
       <div className={classes.inner}>
         <div className={classes.info}>
-          <Highlighter>{doc.metadata['title']}</Highlighter>
-          <Authors authors={doc.metadata['author']} />
-          <Highlighter>{doc.metadata['container-title']}</Highlighter>
-          <VolumeIssuePages document={doc} />
-          <Highlighter>{doc.metadata['DOI']}</Highlighter>
+          <Text fz="lg" fw={700}><Highlighter>{doc.metadata['title']}</Highlighter></Text>
+          <Text color="dimmed"><Authors authors={doc.metadata['author']} /></Text>
+          <Text><span class="journal-title"><Highlighter>{doc.metadata['container-title']}</Highlighter></span> <VolumeIssuePages document={doc} /> {doc.metadata['DOI'] ? ' doi:' + doc.metadata['DOI'] : ''}</Text>
+          <Text></Text>
         </div>
         <div>
           <Image

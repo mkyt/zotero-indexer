@@ -1,7 +1,11 @@
-div.highlighter.dark span.highlight {
+.highlighter.dark span.highlight {
   background-color: #705000;
 }
 
-div.highlighter.light span.highlight {
+.highlighter.light span.highlight {
   background-color: #ffdd00;
+}
+span.journal-title {
+  font-style: italic;
+  font-weight: 700;
 }
