@@ -75,20 +75,22 @@ def search(query: SearchQuery):
     )
 
     for d in mds.results:
-        md = d.__dict__["_Document__doc"]
+        md = d.__dict__[
+            "_Document__doc"
+        ]  # slightly hacky way to get the underlying dict
         iid2md[md["item_id"]] = md
 
     for iid, md in iid2md.items():
-        if iid in iid2fts:
-            fts = iid2fts[iid]
-        else:
-            fts = []
+        fts = iid2fts.get(iid, [])
+        covers = md.get("attachment_fingerprints", [])
+        cover_hash = covers[0] if len(covers) > 0 else None
         res.append(
             {
                 "item_id": iid,
                 "metadata": md["metadata"],
                 "tags": md["tags"],
                 "fulltext": fts,
+                "cover_hash": cover_hash,
             }
         )
 
