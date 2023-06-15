@@ -36,6 +36,7 @@ export default function AppHeader() {
         <ActionIcon
           color={theme.primaryColor}
           size={40}
+          onClick={() => { setSearch(''); setQuery(''); }}
         >
           <IconSquareRoundedLetterZ size={40} />
         </ActionIcon>
