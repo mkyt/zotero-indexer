@@ -66,6 +66,39 @@ function Authors(props) {
   )
 }
 
+function Date(props) {
+
+}
+
+function VolumeIssuePages(props) {
+  const doc = props.document.metadata;
+  var res = ''
+  if (doc.issued['date-parts']) {
+    const date_parts = doc.issued['date-parts'][0];
+    if (date_parts && date_parts.length > 0) {
+      res += date_parts[0];
+    }
+  }
+  if (doc.volume) {
+    if (res.length > 0) {
+      res += '; ';
+    }
+    res += doc.volume;
+  }
+  if (doc.issue) {
+    res += '(' + doc.issue + ')';
+  }
+  if (doc.page) {
+    if (res.length > 0) {
+      res += ':';
+    }
+    res += doc.page;
+  }
+  return (
+    <span>{res}</span>
+  );
+}
+
 function Article(props) {
   const doc = props.document;
   const { classes } = useStyles();
@@ -74,8 +107,9 @@ function Article(props) {
       <div className={classes.inner}>
         <div className={classes.info}>
           <Highlighter>{doc.metadata['title']}</Highlighter>
-          <Highlighter>{doc.metadata['container-title']}</Highlighter>
           <Authors authors={doc.metadata['author']} />
+          <Highlighter>{doc.metadata['container-title']}</Highlighter>
+          <VolumeIssuePages document={doc} />
           <Highlighter>{doc.metadata['DOI']}</Highlighter>
         </div>
         <div>
