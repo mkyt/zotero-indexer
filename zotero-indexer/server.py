@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 import meilisearch
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, Union
 
 API_KEY = open("API_KEY").read().strip()
 
@@ -23,7 +23,7 @@ app.add_middleware(
 
 
 class SearchQuery(BaseModel):
-    q: str | None
+    q: Union[str, None]
 
 
 @app.post("/_api/search")
@@ -64,13 +64,11 @@ def search(query: SearchQuery):
                 iid2fts[iid] = [hit_doc]
 
     only_in_fts = set(iid2fts.keys()).difference(set(iid2md.keys()))
+    print(only_in_fts)
     mds = zotero_idx.get_documents(
         {
             "limit": 1000,
-            "filter": [
-                [f"item_id = {iid}" for iid in only_in_fts],
-                "record_type = metadata",
-            ],
+            "filter": f"record_type = metadata AND item_id IN [ {', '.join(only_in_fts)} ]",
         }
     )
 
