@@ -25,7 +25,7 @@ def setup_index():
     index = c.get_index(INDEX_NAME)
     task = index.update_settings(
         {
-            "filterableAttributes": ["item_id", "record_type", "tags"],
+            "filterableAttributes": ["item_id", "record_type", "tags", "metadata.type"],
             "typoTolerance": {
                 "enabled": False,
             },

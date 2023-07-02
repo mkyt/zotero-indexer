@@ -14,7 +14,7 @@ tell application "iTerm2"
   end tell
 
   tell first session of current tab of current window
-    write text "cd $basedir; meilisearch --master-key $api_key &"
+    write text "cd $basedir; meilisearch --master-key $api_key"
   end tell
 
   tell second session of current tab of current window

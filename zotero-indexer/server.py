@@ -41,8 +41,15 @@ def search(query: SearchQuery):
         query.q,
         {
             "limit": 1000,
-            "attributesToHighlight": ["*"],
+            "attributesToHighlight": [
+                "metadata.author",
+                "metadata.title",
+                "metadata.abstract",
+                "metadata.container-title",
+                "fulltext.text",
+            ],
             "attributesToCrop": ["fulltext.text"],
+            "cropLength": 40,
             "highlightPreTag": '<span class="highlight">',
             "highlightPostTag": "</span>",
             "matchingStrategy": "all",
@@ -63,6 +70,11 @@ def search(query: SearchQuery):
             else:
                 iid2fts[iid] = [hit_doc]
 
+    # sort fulltext results by page number
+    for fts in iid2fts.values():
+        fts.sort(key=lambda x: (x["fingerprint"], x["fulltext"]["page"]))
+
+    # get metadata for items that only have fulltext
     only_in_fts = set(iid2fts.keys()).difference(set(iid2md.keys()))
     print(only_in_fts)
     mds = zotero_idx.get_documents(
@@ -71,13 +83,13 @@ def search(query: SearchQuery):
             "filter": f"record_type = metadata AND item_id IN [ {', '.join(only_in_fts)} ]",
         }
     )
-
     for d in mds.results:
         md = d.__dict__[
             "_Document__doc"
         ]  # slightly hacky way to get the underlying dict
         iid2md[md["item_id"]] = md
 
+    # construct response
     for iid, md in iid2md.items():
         fts = iid2fts.get(iid, [])
         covers = md.get("attachment_fingerprints", [])
